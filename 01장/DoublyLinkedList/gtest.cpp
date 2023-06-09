@@ -1,5 +1,6 @@
 #include "DoublyLinkedList.h"
 #include <gtest/gtest.h>
+#include <exception>
 TEST(DLL_Test, Full_Test)
 {
     int i = 0;
@@ -93,11 +94,28 @@ TEST(DLL_Test, DLL_GetNodeAt)
 
     Current = DLL_GetNodeAt(List, 2);
 
-    //! that statement cannot catch a segmentation fault. 
-    //Segmentation faults are a system level thing and can cause undefined behavior. 
-    //Exceptions are a lot easier to handle. I am still looking for ways to address this, 
-    //but having separate executables is the way for now.
-    EXPECT_DEBUG_DEATH(1/0,"DEATH");
+    //! that statement cannot catch a segmentation fault.
+    // Segmentation faults are a system level thing and can cause undefined behavior.
+    // Exceptions are a lot easier to handle. I am still looking for ways to address this,
+    // but having separate executables is the way for now.
+    // By default, Googletest does catch *exceptions* thrown by a test and continue with the next test
+    //EXPECT_EQ(1 / 0, 2 / 0);
+    //EXPECT_THROW(1/0, "Arithmetic exception");
+    //EXPECT_DEBUG_DEATH(1 / 0, "DEATH");
+
+    EXPECT_THROW({
+        try
+        {
+            1/0;
+        }
+        catch( const std::exception& e )
+        {
+            // and this tests that it has the correct message
+            EXPECT_STREQ( "Arithmetic exception", e.what() );
+            throw;
+        }
+    }, std::exception );
+
     return;
 
     //  노드 5개 추가
@@ -118,7 +136,6 @@ int main(int argc, char **argv)
     //::testing::GTEST_FLAG(filter) = "DLL_Test.Full_Test";
     //::testing::GTEST_FLAG(filter) = "DLL_Test.DLL_CreateNode";
     ::testing::GTEST_FLAG(filter) = "DLL_Test.DLL_GetNodeAt";
-
 
     //::testing::GTEST_FLAG(filter) = "SLL_Test.SLL_DestroyNode";
     //::testing::GTEST_FLAG(filter) = "SLL_Test.SLL_AppendNode";
