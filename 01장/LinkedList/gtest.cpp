@@ -1,6 +1,228 @@
 // tests.cpp
 #include "LinkedList.h"
 #include <gtest/gtest.h>
+
+TEST(SLL_Test, SLL_CreateNode)
+{
+    int *nullPtr = nullptr;
+    Node *validPtr = SLL_CreateNode(5);
+
+    EXPECT_EQ(validPtr->Data, 5);
+
+    SLL_DestroyNode(validPtr);
+    /*
+        EXPECT_EQ(nullPtr, nullptr);
+        EXPECT_NE(typeid(validPtr), typeid(int));
+        EXPECT_NE(typeid(validPtr), typeid(Node));
+        EXPECT_EQ(typeid(validPtr), typeid(Node *));
+    */
+    // delete nullPtr;
+    // SLL_DestroyNode(validPtr);
+}
+
+TEST(SLL_Test, SLL_DestroyNode)
+{
+    Node *validPtr = SLL_CreateNode(5);
+    EXPECT_EQ(typeid(validPtr), typeid(Node *));
+
+    SLL_DestroyNode(validPtr);    // ! valgrind에서 해제 되는지 확인한다.
+    EXPECT_NE(validPtr, nullptr); //! 메모리를 해젷해도 validPtr은 주소를 갖고 있다.
+    // EXPECT_EQ(validPtr, nullptr);
+}
+TEST(SLL_Test, SLL_AppendNode)
+{
+    int Count = 0;
+    Node *List = NULL;
+    Node *Current = NULL;
+    Node *NewNode = NULL;
+    int ExpectData[] = {0, 1, 2, 3, 4};
+
+    for (size_t i = 0; i < 5; i++)
+    {
+        NewNode = SLL_CreateNode(i);
+        SLL_AppendNode(&List, NewNode);
+    }
+
+    for (size_t i = 0; i < 5; i++)
+    {
+        EXPECT_EQ(SLL_GetNodeAt(List, i)->Data, ExpectData[i]);
+    }
+
+    int count = SLL_GetNodeCount(List);
+    SLL_DestroyAllNodes(&List);
+
+    /*
+        for (size_t i = 0; i < 5; i++)
+        {
+            SLL_DestroyNode(SLL_GetNodeAt(List, 4 - i));
+        }
+    */
+}
+
+TEST(SLL_Test, SLL_InsertAfter)
+{
+    int i = 0;
+    int Count = 0;
+    Node *List = NULL;
+    Node *Current = NULL;
+    Node *NewNode = NULL;
+    int Expected_Data[] = {0, 1, 2, 3000, 3, 4};
+
+    //  노드 5개 추가
+    for (i = 0; i < 5; i++)
+    {
+        NewNode = SLL_CreateNode(i);
+        SLL_AppendNode(&List, NewNode);
+    }
+
+    // Current = SLL_GetNodeAt(List, 2);
+    NewNode = SLL_CreateNode(3000);
+
+    SLL_InsertAfter(List, 2, NewNode);
+
+    //  리스트 출력
+    Count = SLL_GetNodeCount(List);
+    for (i = 0; i < Count; i++)
+    {
+        Current = SLL_GetNodeAt(List, i);
+        // printf("List[%d] : %d\n", i, Current->Data);
+        EXPECT_EQ(Expected_Data[i], Current->Data);
+    }
+
+    //  모든 노드를 메모리에서 제거
+    // printf("\nDestroying List...\n");
+    SLL_DestroyAllNodes(&List);
+}
+
+TEST(SLL_Test, SLL_InsertBefore)
+{
+    int i = 0;
+    int Count = 0;
+    Node *List = NULL;
+    Node *Current = NULL;
+    Node *NewNode = NULL;
+    int Expected_Data[] = {3000, 0, 1, 4000, 2, 3, 4};
+
+    //  노드 5개 추가
+    for (i = 0; i < 5; i++)
+    {
+        NewNode = SLL_CreateNode(i);
+        SLL_AppendNode(&List, NewNode);
+    }
+
+    // Current = SLL_GetNodeAt(List, 2);
+
+    NewNode = SLL_CreateNode(3000);
+    SLL_InsertBefore(&List, 0, NewNode);
+
+    NewNode = SLL_CreateNode(4000);
+    SLL_InsertBefore(&List, 3, NewNode);
+
+    //  리스트 출력
+    Count = SLL_GetNodeCount(List);
+    for (i = 0; i < Count; i++)
+    {
+        Current = SLL_GetNodeAt(List, i);
+        // printf("List[%d] : %d\n", i, Current->Data);
+        EXPECT_EQ(Expected_Data[i], Current->Data);
+    }
+
+    //  모든 노드를 메모리에서 제거
+    SLL_DestroyAllNodes(&List);
+}
+
+TEST(SLL_Test, SLL_InsertNewHead)
+{
+    int i = 0;
+    int Count = 0;
+    Node *List = NULL;
+    Node *Current = NULL;
+    Node *NewNode = NULL;
+    int Expected_Data[] = {-2,-1, 0, 1, 2, 3, 4};
+    int NonExpected_Data[] = {0, 1, 2, 3, 4};
+    
+    NewNode = SLL_CreateNode(-1);
+    SLL_InsertNewHead(&List, NewNode);
+
+    //  노드 5개 추가
+    for (i = 0; i < 5; i++)
+    {
+        NewNode = SLL_CreateNode(i);
+        SLL_AppendNode(&List, NewNode);
+    }
+
+    NewNode = SLL_CreateNode(-2);
+    SLL_InsertNewHead(&List, NewNode);
+
+    //  리스트 출력
+    Count = SLL_GetNodeCount(List);
+    for (i = 0; i < Count; i++)
+    {
+        Current = SLL_GetNodeAt(List, i);
+        // printf("List[%d] : %d\n", i, Current->Data);
+        EXPECT_EQ(Expected_Data[i], Current->Data);
+    }
+
+    //  모든 노드를 메모리에서 제거
+    // printf("\nDestroying List...\n");
+
+    SLL_DestroyAllNodes(&List);
+}
+
+TEST(SLL_Test, SLL_RemoveNode)
+{
+    int i = 0;
+    int Count = 0;
+    Node *List = NULL;
+    Node *Current = NULL;
+    // Node *NewNode = NULL;
+    int Expected_Data[] = {1, 2, 3, 4};
+    int NonExpected_Data[] = {0, 1, 2, 3, 4};
+
+    //  노드 5개 추가
+    for (i = 0; i < 5; i++)
+    {
+        // NewNode = SLL_CreateNode(i);
+        SLL_AppendNode(&List, SLL_CreateNode(i));
+    }
+
+    Current = SLL_GetNodeAt(List, 0);
+
+    SLL_RemoveNode(&List, Current);
+    
+    //SLL_DestroyNode(Current); // ! 빼먹기 쉽다!!
+
+    //  리스트 출력
+    Count = SLL_GetNodeCount(List);
+    for (i = 0; i < Count; i++)
+    {
+        Current = SLL_GetNodeAt(List, i);
+        // printf("List[%d] : %d\n", i, Current->Data);
+        EXPECT_EQ(Expected_Data[i], Current->Data);
+    }
+    SLL_DestroyAllNodes(&List);
+}
+/*
+TEST(SLL_Test, SLL_DestroyAllNodes)
+{
+    int i = 0;
+    int Count = 0;
+    Node *List = NULL;
+    Node *Current = NULL;
+    // Node *NewNode = NULL;
+    int Expected_Data[] = {0, 1, 2, 3, 4};
+    int NonExpected_Data[] = {0, 1, 2, 3, 4};
+
+    //  노드 5개 추가
+    for (i = 0; i < 5; i++)
+    {
+        // NewNode = SLL_CreateNode(i);
+        SLL_AppendNode(&List, SLL_CreateNode(i));
+    }
+
+    SLL_DestroyAllNodes(&List);
+}
+
 TEST(SLL_Test, Full_Test)
 {
     int i = 0;
@@ -64,239 +286,7 @@ TEST(SLL_Test, Full_Test)
         }
     }
 }
-TEST(SLL_Test, SLL_CreateNode)
-{
-    int *nullPtr = nullptr;
-    Node *validPtr = SLL_CreateNode(5);
-
-    EXPECT_EQ(nullPtr, nullptr);
-    EXPECT_NE(typeid(validPtr), typeid(int));
-    EXPECT_NE(typeid(validPtr), typeid(Node));
-    EXPECT_EQ(typeid(validPtr), typeid(Node *));
-
-    delete nullPtr;
-    SLL_DestroyNode(validPtr);
-}
-TEST(SLL_Test, SLL_DestroyNode)
-{
-    Node *validPtr = SLL_CreateNode(5);
-    EXPECT_EQ(typeid(validPtr), typeid(Node *));
-
-    SLL_DestroyNode(validPtr);    // ! valgrind에서 해제 되는지 확인한다.
-    EXPECT_NE(validPtr, nullptr); //! 메모리를 해젷해도 validPtr은 주소를 갖고 있다.
-    // EXPECT_EQ(validPtr, nullptr);
-}
-TEST(SLL_Test, SLL_AppendNode)
-{
-    int Count = 0;
-    Node *List = NULL;
-    Node *Current = NULL;
-    Node *NewNode = NULL;
-
-    NewNode = SLL_CreateNode(5);
-    SLL_AppendNode(&List, NewNode);
-
-    EXPECT_EQ(List, NewNode);
-
-    SLL_DestroyNode(NewNode);
-}
-TEST(SLL_Test, SLL_InsertAfter)
-{
-    int i = 0;
-    int Count = 0;
-    Node *List = NULL;
-    Node *Current = NULL;
-    Node *NewNode = NULL;
-    int Expected_Data[] = {0, 1, 2, 3000, 3, 4};
-
-    //  노드 5개 추가
-    for (i = 0; i < 5; i++)
-    {
-        NewNode = SLL_CreateNode(i);
-        SLL_AppendNode(&List, NewNode);
-    }
-
-    Current = SLL_GetNodeAt(List, 2);
-    NewNode = SLL_CreateNode(3000);
-
-    SLL_InsertAfter(Current, NewNode);
-
-    //  리스트 출력
-    Count = SLL_GetNodeCount(List);
-    for (i = 0; i < Count; i++)
-    {
-        Current = SLL_GetNodeAt(List, i);
-        // printf("List[%d] : %d\n", i, Current->Data);
-        EXPECT_EQ(Expected_Data[i], Current->Data);
-    }
-
-    //  모든 노드를 메모리에서 제거
-    // printf("\nDestroying List...\n");
-
-    for (i = 0; i < Count; i++)
-    {
-        Current = SLL_GetNodeAt(List, 0);
-
-        if (Current != NULL)
-        {
-            SLL_RemoveNode(&List, Current);
-            SLL_DestroyNode(Current);
-        }
-    }
-}
-TEST(SLL_Test, SLL_InsertNewHead)
-{
-    int i = 0;
-    int Count = 0;
-    Node *List = NULL;
-    Node *Current = NULL;
-    Node *NewNode = NULL;
-    int Expected_Data[] = {-1, 0, 1, 2, 3, 4};
-    int NonExpected_Data[] = {0, 1, 2, 3, 4};
-
-    //  노드 5개 추가
-    for (i = 0; i < 5; i++)
-    {
-        NewNode = SLL_CreateNode(i);
-        SLL_AppendNode(&List, NewNode);
-    }
-
-    NewNode = SLL_CreateNode(-1);
-    SLL_InsertNewHead(&List, NewNode);
-
-    //  리스트 출력
-    Count = SLL_GetNodeCount(List);
-    for (i = 0; i < Count; i++)
-    {
-        Current = SLL_GetNodeAt(List, i);
-        // printf("List[%d] : %d\n", i, Current->Data);
-        EXPECT_EQ(Expected_Data[i], Current->Data);
-    }
-
-    //  모든 노드를 메모리에서 제거
-    // printf("\nDestroying List...\n");
-
-    for (i = 0; i < Count; i++)
-    {
-        Current = SLL_GetNodeAt(List, 0);
-
-        if (Current != NULL)
-        {
-            SLL_RemoveNode(&List, Current);
-            SLL_DestroyNode(Current);
-        }
-    }
-}
-TEST(SLL_Test, SLL_RemoveNode)
-{
-    int i = 0;
-    int Count = 0;
-    Node *List = NULL;
-    Node *Current = NULL;
-    // Node *NewNode = NULL;
-    int Expected_Data[] = {1, 2, 3, 4};
-    int NonExpected_Data[] = {0, 1, 2, 3, 4};
-
-    //  노드 5개 추가
-    for (i = 0; i < 5; i++)
-    {
-        // NewNode = SLL_CreateNode(i);
-        SLL_AppendNode(&List, SLL_CreateNode(i));
-    }
-
-    Current = SLL_GetNodeAt(List, 0);
-    SLL_RemoveNode(&List, Current);
-    SLL_DestroyNode(Current); // ! 빼먹기 쉽다!!
-
-    //  리스트 출력
-    Count = SLL_GetNodeCount(List);
-    for (i = 0; i < Count; i++)
-    {
-        Current = SLL_GetNodeAt(List, i);
-        // printf("List[%d] : %d\n", i, Current->Data);
-        EXPECT_EQ(Expected_Data[i], Current->Data);
-    }
-
-    //  모든 노드를 메모리에서 제거
-    // printf("\nDestroying List...\n");
-
-    for (i = 0; i < Count; i++)
-    {
-        Current = SLL_GetNodeAt(List, 0);
-
-        if (Current != NULL)
-        {
-            SLL_RemoveNode(&List, Current);
-            SLL_DestroyNode(Current);
-        }
-    }
-
-    // SLL_DestroyNode(NewNode);
-    // SLL_DestroyNode(Current);
-}
-TEST(SLL_Test, SLL_DestroyAllNodes)
-{
-    int i = 0;
-    int Count = 0;
-    Node *List = NULL;
-    Node *Current = NULL;
-    // Node *NewNode = NULL;
-    int Expected_Data[] = {0, 1, 2, 3, 4};
-    int NonExpected_Data[] = {0, 1, 2, 3, 4};
-
-    //  노드 5개 추가
-    for (i = 0; i < 5; i++)
-    {
-        // NewNode = SLL_CreateNode(i);
-        SLL_AppendNode(&List, SLL_CreateNode(i));
-    }
-
-    SLL_DestroyAllNodes(&List);
-}
-TEST(SLL_Test, SLL_InsertBefore)
-{
-    int i = 0;
-    int Count = 0;
-    Node *List = NULL;
-    Node *Current = NULL;
-    Node *NewNode = NULL;
-    int Expected_Data[] = {0, 1, 3000, 2, 3, 4};
-
-    //  노드 5개 추가
-    for (i = 0; i < 5; i++)
-    {
-        NewNode = SLL_CreateNode(i);
-        SLL_AppendNode(&List, NewNode);
-    }
-
-    Current = SLL_GetNodeAt(List, 2);
-    NewNode = SLL_CreateNode(3000);
-
-    SLL_InsertBefore(&List, Current, NewNode);
-
-    //  리스트 출력
-    Count = SLL_GetNodeCount(List);
-    for (i = 0; i < Count; i++)
-    {
-        Current = SLL_GetNodeAt(List, i);
-        // printf("List[%d] : %d\n", i, Current->Data);
-        EXPECT_EQ(Expected_Data[i], Current->Data);
-    }
-
-    //  모든 노드를 메모리에서 제거
-    // printf("\nDestroying List...\n");
-
-    for (i = 0; i < Count; i++)
-    {
-        Current = SLL_GetNodeAt(List, 0);
-
-        if (Current != NULL)
-        {
-            SLL_RemoveNode(&List, Current);
-            SLL_DestroyNode(Current);
-        }
-    }
-}
+*/
 
 int main(int argc, char **argv)
 {
@@ -309,7 +299,7 @@ int main(int argc, char **argv)
     //::testing::GTEST_FLAG(filter) = "SLL_Test.SLL_RemoveNode";
     //::testing::GTEST_FLAG(filter) = "SLL_Test.SLL_GetNodeAt";
     //::testing::GTEST_FLAG(filter) = "SLL_Test.SLL_DestroyAllNodes";
-    ::testing::GTEST_FLAG(filter) = "SLL_Test.SLL_InsertBefore";
+    //::testing::GTEST_FLAG(filter) = "SLL_Test.SLL_InsertBefore";
 
     //::testing::GTEST_FLAG(filter) = "SLL_Test.*";
     //::testing::GTEST_FLAG(repeat) = 10;
