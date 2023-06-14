@@ -1,125 +1,88 @@
 #include "CircularDoublyLinkedList.h"
 
-//  노드 생성 
-Node* CDLL_CreateNode(ElementType NewData)
+Node *CDLL_CreateNode(ElementType NewData)
 {
-    Node* NewNode = (Node*)malloc(sizeof(Node));
+    Node *NewNode = (Node *)malloc(sizeof(Node));
 
     NewNode->Data = NewData;
-    NewNode->PrevNode = NULL;
-    NewNode->NextNode = NULL;
+    NewNode->PrevNode = NewNode;
+    NewNode->NextNode = NewNode;
 
     return NewNode;
 }
 
-//  노드 소멸 
-void CDLL_DestroyNode(Node* Node)
+void CDLL_DestroyNode(Node *Node)
 {
     free(Node);
+    Node = NULL;
 }
 
-//  노드 추가 
-void CDLL_AppendNode(Node** Head, Node* NewNode)
+void CDLL_DestroyAllNodes(Node **List)
 {
-    //  헤드 노드가 NULL이라면 새로운 노드가 Head 
-    if ( (*Head) == NULL ) 
+    int count=CDLL_GetNodeCount(*List);
+    Node *Current = *List;
+    for (size_t i = 0; i < count; i++)
+    {
+        *List = Current->NextNode;
+        CDLL_DestroyNode(Current);
+        Current = *List;
+    }
+}
+
+void CDLL_AppendNode(Node **Head, Node *NewNode)
+{
+    if (*Head == NULL)
     {
         *Head = NewNode;
         (*Head)->NextNode = *Head;
         (*Head)->PrevNode = *Head;
-    } 
+    }
     else
     {
-        //  테일과 헤드 사이에 NewNode를 삽입한다. 
-        Node* Tail = (*Head)->PrevNode;
-        
-        Tail->NextNode->PrevNode = NewNode;
+        // Tail과 Head사이에 NewNode
+        Node *Tail = (*Head)->PrevNode;
+
         Tail->NextNode = NewNode;
+        NewNode->PrevNode = Tail;
+        NewNode->NextNode = *Head;
 
-        NewNode->NextNode = (*Head);
-        NewNode->PrevNode = Tail; //  기존의 테일을 새로운  
-                                  //  테일의 PrevNode가 가리킨다. 
+        (*Head)->PrevNode = NewNode;
     }
 }
 
-//  노드 삽입 
-void CDLL_InsertAfter(Node* Current, Node* NewNode)
+void CDLL_RemoveNode(Node **Head, Node *Remove)
 {
-    NewNode->NextNode = Current->NextNode;
-    NewNode->PrevNode = Current;
+    Node *Temp = Remove;
+    Temp->PrevNode->NextNode = Remove->NextNode;
+    Remove->NextNode->PrevNode = Temp->PrevNode;
 
-    if ( Current->NextNode != NULL )
-    {
-        Current->NextNode->PrevNode = NewNode;
-        Current->NextNode = NewNode;
-    }
+    CDLL_DestroyNode(Remove);
 }
 
-//  노드 제거 
-void CDLL_RemoveNode(Node** Head, Node* Remove)
+Node *CDLL_GetNodeAt(Node *Head, int Location)
 {
-    if ( *Head == Remove )
-    {
-        (*Head)->PrevNode->NextNode = Remove->NextNode;
-        (*Head)->NextNode->PrevNode = Remove->PrevNode;
+    Node *Current = Head;
+    // int maxNodeCount = CDLL_GetNodeCount(Head) - 1;
 
-        *Head = Remove->NextNode;
-        
-        Remove->PrevNode = NULL;
-        Remove->NextNode = NULL;
-    }
-    else
-    {
-        Remove->PrevNode->NextNode = Remove->NextNode;
-        Remove->NextNode->PrevNode = Remove->PrevNode;
-
-        Remove->PrevNode = NULL;
-        Remove->NextNode = NULL;
-    }    
-}
-
-//  노드 탐색 
-Node* CDLL_GetNodeAt(Node* Head, int Location)
-{
-    Node* Current = Head;
-
-    while ( Current != NULL && (--Location) >= 0)
+    while (Location > 0)
     {
         Current = Current->NextNode;
+        Location--;
     }
 
     return Current;
 }
 
-//  노드 수 세기 
-int CDLL_GetNodeCount(Node* Head)
+int CDLL_GetNodeCount(Node *Head)
 {
-    unsigned int  Count = 0;
-    Node*         Current = Head;
-
-    while ( Current != NULL )
+    int count = 0;
+    Node *Current = Head;
+    while (Current != NULL)
     {
+        count++;
         Current = Current->NextNode;
-        Count++;
-
-        if ( Current == Head )
+        if (Current == Head)
             break;
     }
-
-    return Count;
-}
-
-void PrintNode(Node* _Node)
-{
-    if ( _Node->PrevNode == NULL )
-        printf("Prev: NULL");
-    else
-        printf("Prev: %d", _Node->PrevNode->Data);
-
-    printf(" Current: %d ", _Node->Data);
-
-    if ( _Node->NextNode == NULL )
-        printf("Next: NULL\n");
-    else
-        printf("Next: %d\n", _Node->NextNode->Data);
+    return count;
 }

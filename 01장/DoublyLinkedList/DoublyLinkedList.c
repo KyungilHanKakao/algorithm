@@ -2,10 +2,12 @@
 
 Node *DLL_CreateNode(ElementType NewData)
 {
-    Node *NewNode = (Node *)malloc(sizeof(Node)); // sizeof(Node) //! sizeof(Node*)
+    Node *NewNode = (Node *)malloc(sizeof(Node));
+
     NewNode->Data = NewData;
-    NewNode->NextNode = NULL;
     NewNode->PrevNode = NULL;
+    NewNode->NextNode = NULL;
+
     return NewNode;
 }
 
@@ -15,49 +17,78 @@ void DLL_DestroyNode(Node *Node)
     Node = NULL;
 }
 
+void DLL_DestroyAllNodes(Node **List)
+{
+    Node *Current = *List;
+    while (Current != NULL)
+    {
+        *List = Current->NextNode;
+        DLL_DestroyNode(Current);
+        Current = *List;
+    }
+}
+
 void DLL_AppendNode(Node **Head, Node *NewNode)
 {
-    Node *Current = *Head;
-    while (Current->NextNode != NULL)
+    if (*Head == NULL)
     {
-        Current = Current->NextNode;
+        *Head = NewNode;
     }
-
-    Current->NextNode = NewNode;
+    else
+    {
+        Node *Current = *Head;
+        while (Current->NextNode != NULL)
+        {
+            Current = Current->NextNode;
+        }
+        NewNode->PrevNode = Current;
+        Current->NextNode = NewNode;
+    }
 }
 
 void DLL_InsertAfter(Node *Current, Node *NewNode)
 {
-    if (Current->NextNode == NULL)
-    {
-        Current->NextNode = NewNode;
-        NewNode->PrevNode = Current;
-    }
-    else
-    {
-        NewNode->NextNode = Current->NextNode;
-        NewNode->PrevNode = Current;
+    NewNode->NextNode = Current->NextNode;
+    NewNode->PrevNode = Current;
 
-        Current->NextNode = NewNode;
-        Current->NextNode->PrevNode = NewNode;
-    }
+    Current->NextNode->PrevNode = NewNode; //
+    Current->NextNode = NewNode;
 }
 
 void DLL_RemoveNode(Node **Head, Node *Remove)
 {
+    Node* Temp = Remove;
+    Temp->PrevNode->NextNode=Remove->NextNode;
+    Remove->NextNode->PrevNode=Temp->PrevNode;
+    DLL_DestroyNode(Remove);
 }
 
 Node *DLL_GetNodeAt(Node *Head, int Location)
 {
     Node *Current = Head;
-    while (Current != NULL && (--Location >= 0))
+    int maxNodeCount = DLL_GetNodeCount(Head) - 1;
+    if (maxNodeCount < Location)
+    {
+        Location = maxNodeCount;
+    }
+
+    while (Location > 0)
     {
         Current = Current->NextNode;
+        Location--;
     }
+
     return Current;
 }
 
 int DLL_GetNodeCount(Node *Head)
 {
-    return 0;
+    int count = 0;
+    Node *Current = Head;
+    while (Current != NULL)
+    {
+        count++;
+        Current = Current->NextNode;
+    }
+    return count;
 }

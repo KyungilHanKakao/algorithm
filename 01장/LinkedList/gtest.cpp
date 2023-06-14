@@ -68,6 +68,7 @@ TEST(SLL_Test, SLL_InsertAfter)
     Node *NewNode = NULL;
     int Expected_Data[] = {0, 1, 2, 3000, 3, 4};
 
+    SLL_InsertAfter(List, 0, NewNode);
     //  노드 5개 추가
     for (i = 0; i < 5; i++)
     {
@@ -138,9 +139,9 @@ TEST(SLL_Test, SLL_InsertNewHead)
     Node *List = NULL;
     Node *Current = NULL;
     Node *NewNode = NULL;
-    int Expected_Data[] = {-2,-1, 0, 1, 2, 3, 4};
+    int Expected_Data[] = {-2, -1, 0, 1, 2, 3, 4};
     int NonExpected_Data[] = {0, 1, 2, 3, 4};
-    
+
     NewNode = SLL_CreateNode(-1);
     SLL_InsertNewHead(&List, NewNode);
 
@@ -189,8 +190,8 @@ TEST(SLL_Test, SLL_RemoveNode)
     Current = SLL_GetNodeAt(List, 0);
 
     SLL_RemoveNode(&List, Current);
-    
-    //SLL_DestroyNode(Current); // ! 빼먹기 쉽다!!
+
+    // SLL_DestroyNode(Current); // ! 빼먹기 쉽다!!
 
     //  리스트 출력
     Count = SLL_GetNodeCount(List);
