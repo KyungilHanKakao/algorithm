@@ -1,68 +1,90 @@
 #include "CircularQueue.h"
 
-void  CQ_CreateQueue( CircularQueue** Queue, int Capacity)
+void CQ_CreateQueue(CircularQueue **Queue, int Capacity)
 {
-    //  큐를 자유 저장소에 생성 
-    (*Queue )           = ( CircularQueue*)malloc(sizeof( CircularQueue ));
+    (*Queue) = (CircularQueue *)malloc(sizeof(CircularQueue));
 
-    //  입력된 Capacity+1 만큼의 노드를 자유 저장소에 생성 
-    (*Queue )->Nodes    = (Node*)malloc(sizeof(Node )* ( Capacity+1) );
+    (*Queue)->Nodes = (Node *)malloc(sizeof(Node) * Capacity + 1);
 
-    (*Queue )->Capacity = Capacity;
-    (*Queue )->Front = 0;
-    (*Queue )->Rear  = 0;
+    (*Queue)->Front = 0;
+    (*Queue)->Rear = 0;
+    (*Queue)->Capacity = Capacity;
 }
 
-void CQ_DestroyQueue( CircularQueue* Queue )
+void CQ_DestroyQueue(CircularQueue *Queue)
 {
     free(Queue->Nodes);
-    free(Queue );
+    free(Queue);
 }
 
-void CQ_Enqueue( CircularQueue* Queue, ElementType Data)
+void CQ_Enqueue(CircularQueue *Queue, ElementType Data)
 {
-    int Position=0;
-  
-    if(Queue->Rear==Queue->Capacity)
+    int position = Queue->Rear;
+    if (CQ_IsFull(Queue) != TRUE)
     {
-        Position=Queue->Rear;
-        Queue->Rear=0;
+        if (Queue->Rear == Queue->Capacity)
+        {
+
+            Queue->Rear = 0;
+        }
+        else
+        {
+            Queue->Rear++;
+        }
+        Queue->Nodes[position].Data = Data;
     }
     else
-        Position=Queue->Rear++;
-  
-    Queue->Nodes[Position].Data=Data;
+    {
+    }
 }
 
-ElementType CQ_Dequeue( CircularQueue* Queue )
+ElementType CQ_Dequeue(CircularQueue *Queue)
 {
-    int Position = Queue->Front;
-
-    if ( Queue->Front == Queue->Capacity )
+    int position = Queue->Front;
+    if (Queue->Front == Queue->Capacity)
+    {
         Queue->Front = 0;
+    }
     else
+    {
         Queue->Front++;
-
-    return Queue->Nodes[Position].Data;
+    }
+    return Queue->Nodes[position].Data;
 }
 
-int CQ_GetSize( CircularQueue* Queue )
+int CQ_GetSize(CircularQueue *Queue)
 {
-    if ( Queue->Front <= Queue->Rear )
+    if ((Queue->Rear - Queue->Front) > 0)
+    {
         return Queue->Rear - Queue->Front;
+    }
     else
-        return Queue->Rear + (Queue->Capacity - Queue->Front) + 1;
+    {
+        return Queue->Capacity - Queue->Front + Queue->Rear + 1;
+    }
 }
 
-int CQ_IsEmpty( CircularQueue* Queue )
+int CQ_IsEmpty(CircularQueue *Queue)
 {
-    return (Queue->Front == Queue->Rear);
+    if ((Queue->Rear - Queue->Front) == 0)
+        return TRUE;
+    else
+        return FALSE;
 }
 
-int CQ_IsFull( CircularQueue* Queue )
+int CQ_IsFull(CircularQueue *Queue)
 {
-    if ( Queue->Front < Queue->Rear )
-        return ( Queue->Rear - Queue->Front) == Queue->Capacity;
+    if ((Queue->Rear - Queue->Front) == Queue->Capacity)
+    {
+        return TRUE;
+    }
     else
-        return ( Queue->Rear + 1 ) == Queue->Front;
+    {
+        if ((Queue->Rear + 1) == (Queue->Front))
+        {
+            return TRUE;
+        }
+        else
+            return FALSE;
+    }
 }

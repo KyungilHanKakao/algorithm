@@ -85,8 +85,6 @@ TEST(DLL_Test, DLL_RemoveNode)
         {
             EXPECT_EQ(DLL_GetNodeAt(List, i)->Data, DLL_GetNodeAt(List, i+1)->PrevNode->Data);
         }
-        
-        
     }
 
     DLL_DestroyAllNodes(&List);
