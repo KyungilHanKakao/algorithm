@@ -4,7 +4,7 @@ int main( void )
 {
     ETNode* Root = NULL;
 
-    char PostfixExpression[20] = "71*52-/";
+    char PostfixExpression[20] = "1*71*52-/"; //"71-51/71-52/-/*"
     ET_BuildExpressionTree( PostfixExpression, &Root);
 
     //  트리 출력 
